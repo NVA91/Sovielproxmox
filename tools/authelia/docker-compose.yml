@@ -1,0 +1,39 @@
+# Authelia — lokale Instanz auf der VM (optional)
+# Nur nutzen wenn Authelia ZUSÄTZLICH lokal läuft (z. B. für interne Dienste)
+# Primäre Authelia-Instanz läuft auf dem VPS!
+#
+# Kein Port-Publish — nur über n8n_backend-Netzwerk erreichbar
+
+services:
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia-local
+    restart: unless-stopped
+    volumes:
+      - ./config:/config
+      - authelia_data:/data
+    environment:
+      - TZ=${TIMEZONE:-Europe/Berlin}
+    # ports:            # ← KEIN publish
+    #   - "9091:9091"
+    networks:
+      - backend
+
+  # Redis für Session-Storage (empfohlen für Produktion)
+  redis:
+    image: redis:7-alpine
+    container_name: authelia-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - backend
+
+volumes:
+  authelia_data:
+  redis_data:
+
+networks:
+  backend:
+    name: n8n_backend
+    external: true

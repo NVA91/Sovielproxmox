@@ -1,0 +1,46 @@
+# === Secrets & Credentials ===
+.env
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+acme.json          # Traefik Let's Encrypt Zertifikatsspeicher
+
+# === WireGuard — echte Configs niemals committen! ===
+# Nur *.example-Dateien ins Repo
+tools/wireguard-client/wg0.conf
+*.conf
+/etc/wireguard/
+
+# === Authelia — echte Configs ===
+tools/authelia/config/configuration.yml
+tools/authelia/config/users_database.yml
+
+# === Backups & generierte Daten ===
+*.tar.gz
+*.tar.bz2
+*.zip
+backups/
+*-data/            # Bind-Mount-Verzeichnisse (z. B. ollama-data/, n8n-data/)
+*.sqlite3
+*.sqlite
+*.db
+
+# === Logs ===
+*.log
+logs/
+
+# === Docker ===
+docker-compose.override.yml   # lokale Overrides nicht ins Repo
+
+# === Editor & OS ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

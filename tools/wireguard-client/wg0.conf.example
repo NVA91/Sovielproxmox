@@ -1,0 +1,36 @@
+# WireGuard Client-Konfiguration — VORLAGE (keine echten Keys!)
+# Echte Config liegt NICHT im Repo → /etc/wireguard/wg0.conf auf der VM
+#
+# WARNUNG: Niemals echte PrivateKey / PresharedKey-Werte committen!
+
+[Interface]
+# Privater Key der VM (generiert mit: wg genkey)
+PrivateKey = DEIN_PRIVATER_KEY_HIER_EINTRAGEN==
+
+# IP-Adresse dieser VM im WireGuard-Tunnel
+Address = 10.8.0.2/24
+
+# Optional: DNS-Server im Tunnel
+# DNS = 10.8.0.1
+
+# Optionale Hooks (nativ WireGuard):
+# PostUp = iptables -A FORWARD -i wg0 -j ACCEPT
+# PostDown = iptables -D FORWARD -i wg0 -j ACCEPT
+
+[Peer]
+# Öffentlicher Key des VPS (generiert mit: wg pubkey < privatekey)
+PublicKey = VPS_OEFFENTLICHER_KEY_HIER==
+
+# Optional: Pre-Shared Key für zusätzliche Sicherheit
+# PresharedKey = PRESHARED_KEY_HIER==
+
+# Öffentliche IP und Port des VPS
+Endpoint = DEINE_VPS_IP:51820
+
+# Welche IPs durch den Tunnel geroutet werden
+# Nur VPS-interne IPs: 10.8.0.1/32
+# Alles durch Tunnel: 0.0.0.0/0
+AllowedIPs = 10.8.0.1/32
+
+# Keepalive für NAT-Traversal (empfohlen für Client hinter NAT)
+PersistentKeepalive = 25
