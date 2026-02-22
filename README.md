@@ -3,9 +3,18 @@
 Dieses Repo enthält alle Docker-Compose-Konfigurationen, Vorlagen und Hilfsskripte
 für die **VM-Seite** eines Homelabs hinter einem WireGuard-Tunnel.
 
+| Eigenschaft | Wert |
+|-------------|------|
+| **Nutzermodell** | Single-User |
+| **Sicherheitspriorität** | Hardware zuerst → Netzwerk → Software |
+| **Exponierte Ports** | Keine — alles nur via WireGuard-Tunnel |
+
 **Wichtig:** Dieses Repo enthält ausschließlich Vorlagen und Konfigurationsgerüste —
 keine echten Secrets, keine automatisch startenden Dienste. Alles muss manuell
 aktiviert und befüllt werden.
+
+> Vor dem ersten Start unbedingt `docs/hardware-security.md` durcharbeiten —
+> Software-Sicherheit ist wertlos ohne sichere Hardware-Basis.
 
 ---
 
@@ -74,7 +83,10 @@ Alle VM-Dienste kommunizieren intern über das Docker-Netzwerk `n8n_backend`.
 
 ## Voraussetzungen auf der VM
 
-Bevor irgendein Dienst gestartet wird, muss Folgendes erfüllt sein:
+> **Zuerst:** Hardware-Sicherheits-Checkliste in [`docs/hardware-security.md`](./docs/hardware-security.md)
+> durcharbeiten — BIOS, LUKS, IOMMU, SSH-Härtung — bevor Docker auch nur gestartet wird.
+
+Danach Folgendes sicherstellen:
 
 ### 1. Docker + Compose Plugin
 
@@ -244,6 +256,7 @@ docker logs -f open-webui
 
 | Datei | Inhalt |
 |-------|--------|
+| [docs/hardware-security.md](./docs/hardware-security.md) | **Hardware-Sicherheit: BIOS, LUKS, IOMMU, Proxmox-Härtung** |
 | [CLAUDE.md](./CLAUDE.md) | Vollständige Architektur, Konventionen, Checkliste |
 | [tools/ollama/README.md](./tools/ollama/README.md) | Ollama: GPU, Modelle, Zugriff |
 | [tools/wireguard-client/README.md](./tools/wireguard-client/README.md) | WireGuard: nativ vs. Docker |

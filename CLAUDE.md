@@ -1,7 +1,22 @@
 # CLAUDE.md — Homelab System Rules & Architecture
 
+## Systemprofil
+
+| Eigenschaft | Wert |
+|-------------|------|
+| **Nutzermodell** | Single-User — kein Mehrbenutzerbetrieb |
+| **Sicherheitspriorität** | **Hardware-Sicherheit zuerst** → dann Netzwerk → dann Software |
+| **Vertrauensmodell** | Zero-Trust nach außen; intern minimal Attack Surface |
+
+> **Grundregel:** Sicherheit geht vor Komfort — besonders auf Hardware-Ebene.
+> Kein Dienst, kein Port, kein Feature wird aktiviert, der nicht explizit gebraucht wird.
+
+---
+
 ## Systemregeln für Claude
 
+- **Hardware-Sicherheit hat Vorrang** — vor jeder Software-Änderung prüfen, ob die Hardware-Basis sicher ist (siehe `docs/hardware-security.md`)
+- **Single-User-System** — keine Mehrbenutzer-Konfigurationen, kein Sharing, keine Gast-Accounts
 - Alle Änderungen an produktiven Stacks **vorher** dokumentieren (Abschnitt „Stack-Übersicht" aktuell halten)
 - Niemals echte Secrets in dieses Repo committen — immer `.env.example` mit Dummy-Werten
 - Compose-Dateien enthalten **keine** `ports:`-Direktiven für interne Dienste — alle Dienste sind ausschließlich über den WireGuard-Tunnel und das interne `n8n_backend`-Netzwerk erreichbar
@@ -150,6 +165,25 @@ Ausnahme: WireGuard-Server auf dem VPS (UDP 51820) — aber das liegt nicht in d
 ---
 
 ## Offene Punkte / Checkliste
+
+### Priorität 1 — Hardware-Sicherheit (vor allem anderen!)
+
+- [ ] BIOS/UEFI-Passwort gesetzt und Boot-Reihenfolge gesperrt?
+- [ ] Secure Boot aktiv (oder bewusst deaktiviert + dokumentiert)?
+- [ ] Proxmox-Host-Disk verschlüsselt (LUKS) oder physisch gesichert?
+- [ ] IOMMU (VT-d / AMD-Vi) im BIOS aktiviert? → Pflicht für PCIe-Passthrough-Isolation
+      ```bash
+      # Prüfen auf Proxmox-Host:
+      dmesg | grep -e DMAR -e IOMMU | head -5
+      ```
+- [ ] Kein SSH-Root-Login auf Proxmox-Host? (`PermitRootLogin no` in `/etc/ssh/sshd_config`)
+- [ ] Proxmox-Web-UI nicht direkt aus Internet erreichbar (nur via VPN/WireGuard)?
+- [ ] Firewall auf Proxmox-Host: alle Ports außer SSH + WireGuard gesperrt?
+- [ ] Physischer Zugang zum Server gesichert (Rack / abgesperrter Raum)?
+
+→ Vollständige Hardware-Sicherheits-Checkliste: **`docs/hardware-security.md`**
+
+### Priorität 2 — Software / Docker
 
 - [ ] Ist WireGuard auf der VM nativ (`/etc/wireguard/wg0.conf`) oder dockerisiert?
 - [ ] NVIDIA Container Toolkit installiert und getestet?
