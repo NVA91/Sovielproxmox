@@ -27,6 +27,66 @@
 
 ---
 
+## Arbeitsweise (Pflicht — für Claude und Mensch)
+
+> **Kein übereiltes Arbeiten.** Sicherheit und Sauberkeit gehen vor Geschwindigkeit.
+> Jede Änderung, die an Hardware heranreicht, durchläuft zwingend diese Reihenfolge:
+
+```
+1. PLANEN      → Was wird geändert? Was sind die Risiken? Rückweg bekannt?
+2. ISOLIERT TESTEN → Erst in sicherer Umgebung testen (VM, Testcontainer, Dry-Run)
+3. VERIFIZIEREN → Test erfolgreich + sauber abgeschlossen? Keine Warnungen?
+4. DEPLOYEN    → Erst nach bestandenem Test auf den echten Server
+5. ALTLASTEN   → Alte Configs, Images, Container, Volumes aufräumen
+6. DOKUMENTIEREN → Kurze Notiz: was wurde gemacht, was wurde gelernt
+```
+
+### Regel: Kein Deployment ohne bestandenen isolierten Test
+
+```
+FALSCH:  Idee → sofort auf K1X ausführen
+RICHTIG: Idee → lokal/VM testen → Test grün → K1X deployen
+```
+
+Gilt besonders für:
+- Jede PCIe / IOMMU / Passthrough-Konfiguration (→ Hardware-Schaden möglich)
+- Kernel-Parameter-Änderungen (`/etc/default/grub`, IOMMU-Flags)
+- Neue Docker-Compose-Stacks (erst `docker compose config` prüfen)
+- Netzwerk-Änderungen (Tunnel, Firewall — Aussperrung möglich)
+- NVMe-Zuordnung zu VMs (falsches Laufwerk = Datenverlust)
+
+### Altlasten entfernen (nach jeder Änderung)
+
+```bash
+# Ungenutzte Docker-Images entfernen:
+docker image prune -f
+
+# Gestoppte Container entfernen:
+docker container prune -f
+
+# Verwaiste Volumes entfernen (VORSICHT — nur wenn sicher ungenutzt!):
+docker volume ls   # erst prüfen
+# docker volume prune -f   # dann ggf. ausführen
+
+# Alte Proxmox-Snapshots / Backups aufräumen (manuell im UI oder):
+# Datacenter → Storage → Inhalt → veraltete Snapshots löschen
+```
+
+### Kurz-Doku nach jeder Änderung (Minimalformat)
+
+Am Ende jeder Session oder nach jeder größeren Änderung festhalten:
+
+```
+Datum:    YYYY-MM-DD
+Was:      [Kurzbeschreibung der Änderung]
+Getestet: [Wie getestet, Ergebnis]
+Offen:    [Was noch fehlt oder unklar ist]
+```
+
+→ Entweder als Commit-Message, als Eintrag in `docs/changelog.md`, oder als Kommentar im jeweiligen Stack-README.
+
+---
+
 ## Aktuelle Architektur (Stand: 2026-02)
 
 > Hardware-Übersicht aller Systeme: **`docs/infrastructure.md`**
