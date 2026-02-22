@@ -1,0 +1,32 @@
+# Ollama — LLM-Server mit GPU-Support
+# Kein Port-Publish! Zugang nur über n8n_backend-Netzwerk (intern)
+# Voraussetzung: NVIDIA Container Toolkit installiert
+#   → Test: docker run --rm --gpus all nvidia/cuda:12.0-base-ubuntu22.04 nvidia-smi
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    # ports:              # ← KEIN publish — nur via Tunnel/internes Netz erreichbar
+    #   - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    networks:
+      - backend
+
+volumes:
+  ollama:
+    name: ollama_data
+
+networks:
+  backend:
+    name: n8n_backend
+    external: true

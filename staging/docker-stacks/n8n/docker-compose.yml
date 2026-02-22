@@ -1,0 +1,47 @@
+# n8n — Workflow Automation
+# Kein Port-Publish! Zugang nur via WireGuard-Tunnel → Traefik (VPS)
+# Voraussetzung: n8n_backend-Netzwerk existiert (docker network create n8n_backend)
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    volumes:
+      - n8n_data:/home/node/.n8n
+    environment:
+      - N8N_HOST=${N8N_HOST}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=https
+      - NODE_ENV=production
+      - WEBHOOK_URL=https://${N8N_HOST}/
+      - GENERIC_TIMEZONE=${TIMEZONE:-Europe/Berlin}
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      # Ollama-Integration (optional)
+      # - OLLAMA_HOST=http://ollama:11434
+    # ports:           # ← KEIN publish — nur intern
+    #   - "5678:5678"
+    networks:
+      - backend
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: n8n_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-n8n}
+      - POSTGRES_USER=${POSTGRES_USER:-n8n}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+volumes:
+  n8n_data:
+  postgres_data:
+
+networks:
+  backend:
+    name: n8n_backend
+    external: true

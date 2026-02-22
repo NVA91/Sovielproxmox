@@ -1,0 +1,34 @@
+# WireGuard Client (dockerisiert) — nur nutzen falls NICHT nativ auf der VM
+# Wenn WireGuard nativ läuft (/etc/wireguard/wg0.conf), diese Datei ignorieren!
+#
+# Image: linuxserver/wireguard im Client-Modus
+# Voraussetzung: wg0.conf liegt auf dem Host (NICHT im Repo!)
+
+services:
+  wireguard-client:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard-client
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    volumes:
+      # Echte Config vom Host mounten — NICHT aus dem Repo!
+      - /etc/wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+    # ports:          # ← KEIN publish — Client-Modus braucht keine offenen Ports
+    #   - "51820:51820/udp"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIMEZONE:-Europe/Berlin}
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: n8n_backend
+    external: true
