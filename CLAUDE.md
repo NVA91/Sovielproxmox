@@ -45,7 +45,7 @@
 
 ```
 FALSCH:  Idee → sofort auf K1X ausführen
-RICHTIG: Idee → lokal/VM testen → Test grün → K1X deployen
+RICHTIG: Idee → Proxmox-Controller-Sim testen → Test grün → K1X deployen
 ```
 
 Gilt besonders für:
@@ -54,6 +54,32 @@ Gilt besonders für:
 - Neue Docker-Compose-Stacks (erst `docker compose config` prüfen)
 - Netzwerk-Änderungen (Tunnel, Firewall — Aussperrung möglich)
 - NVMe-Zuordnung zu VMs (falsches Laufwerk = Datenverlust)
+
+### Proxmox-Test-Controller (Simulator)
+
+> Es existiert ein separates GitHub-Projekt mit einem **Controller zur Simulation des
+> Proxmox-Hosts**. Dieser deckt einen Großteil der Konfigurationsszenarien ab und
+> erlaubt es, Änderungen **ohne echte Hardware** zu testen.
+
+```
+Repo:   https://github.com/NVA91/TODO_REPO_NAME_HIER_EINTRAGEN
+Zweck:  Proxmox-Host simulieren → Konfigurationen testen ohne K1X-Hardware
+Einsatz: Schritt 2 (ISOLIERT TESTEN) im Workflow oben
+```
+
+**Wann den Simulator nutzen (vor K1X-Deployment):**
+
+| Szenario | Simulator ausreichend? |
+|----------|----------------------|
+| Neue VM-Konfiguration testen | Ja |
+| Docker-Compose-Stack validieren | Ja (`docker compose config`) |
+| Netzwerk-Routing / Firewall-Regeln | Ja |
+| IOMMU-Gruppen-Zuordnung prüfen | Teilweise (Logik ja, echte PCIe-Gruppen nein) |
+| OCuLink / GPU-Passthrough | Nein → K1X zwingend, aber erst nach Simulator-Check |
+| GRUB-Parameter-Änderungen | Ja (Simulator) → dann K1X mit Snapshot-Backup |
+
+> **Merksatz:** Wenn der Simulator es nicht besteht, kommt es nicht auf K1X.
+> Wenn der Simulator es besteht, erst dann mit Backup auf K1X deployen.
 
 ### Altlasten entfernen (nach jeder Änderung)
 

@@ -25,6 +25,21 @@
 | **NVMe-Passthrough: falsches Laufwerk** | Proxmox-System-SSD (SSD1) an VM gegeben → Host bootet nicht mehr | SSD-Slot/PCI-ID verifizieren, niemals SSD1 durchreichen |
 | **GPU-Reset-Bug (NVIDIA):** VM hard-stoppen ohne Reset | GPU hängt nach VM-Neustart — erfordert Proxmox-Host-Reboot | vendor-reset oder ordentlichen VM-Shutdown nutzen |
 
+### Teststrategie: Simulator zuerst, K1X zuletzt
+
+> Für dieses Projekt existiert ein **Proxmox-Host-Controller-Simulator** (separates GitHub-Repo).
+> Dieser simuliert den Proxmox-Host und deckt einen Großteil der Konfigurationsszenarien ab.
+>
+> **Reihenfolge zwingend einhalten:**
+> ```
+> 1. Konfiguration im Proxmox-Simulator testen → erst bei grünem Test weiter
+> 2. Proxmox-Snapshot auf K1X erstellen (Rückweg sichern)
+> 3. Pflicht-Checks unten ausführen (PCI-IDs, IOMMU-Gruppen)
+> 4. Änderung auf K1X deployen
+> ```
+>
+> Simulator-Repo: `CLAUDE.md` → Abschnitt „Proxmox-Test-Controller"
+
 ### Pflicht-Checks vor jeder Passthrough-Konfiguration
 
 ```bash
