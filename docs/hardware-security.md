@@ -8,6 +8,50 @@
 
 ---
 
+## GEFAHR — Falsche Zuweisung kann Hardware beschädigen
+
+> Dieses System hat bekannte Risiken durch falsche PCIe / IOMMU / Passthrough-Konfigurationen.
+> Folgende Fehler können zu dauerhaften Hardwareschäden führen — **vor jeder Änderung lesen.**
+
+### K1X-spezifische Risiken
+
+| Risiko | Was kann passieren | Bedingung |
+|--------|--------------------|-----------|
+| **OCuLink-Kabel trennen während VM läuft** | GPU-Absturz, Kernel-Panic, im schlimmsten Fall GPU-Schaden durch unterbrochene PCIe-Verbindung | Nie während Betrieb trennen |
+| **Falsche IOMMU-Gruppe für GPU-Passthrough** | Andere Geräte im gleichen IOMMU-Kontext können GPU-Speicher lesen/schreiben — Datenverlust, Instabilität | Vor Passthrough Gruppen prüfen |
+| **iGPU (Radeon 780M) und eGPU (RTX 5060 Ti) vertauscht** | Falsches Gerät an VM durchgereicht — Proxmox verliert Console-Zugriff, System nicht mehr administrierbar ohne Monitor | PCI-IDs vor Passthrough doppelt prüfen |
+| **ACS Override aktiviert ohne Verständnis** | Schwächt IOMMU-Isolation aller PCIe-Geräte — nicht nur GPU betroffen | Nur als letztes Mittel, dokumentieren |
+| **Gleichzeitiger Zugriff Host + VM auf GPU** | GPU-Treiber-Konflikt — GPU kann in einen defekten Zustand gebracht werden | Auf Host darf kein nvidia-Treiber geladen sein wenn GPU an VM durchgereicht |
+| **NVMe-Passthrough: falsches Laufwerk** | Proxmox-System-SSD (SSD1) an VM gegeben → Host bootet nicht mehr | SSD-Slot/PCI-ID verifizieren, niemals SSD1 durchreichen |
+| **GPU-Reset-Bug (NVIDIA):** VM hard-stoppen ohne Reset | GPU hängt nach VM-Neustart — erfordert Proxmox-Host-Reboot | vendor-reset oder ordentlichen VM-Shutdown nutzen |
+
+### Pflicht-Checks vor jeder Passthrough-Konfiguration
+
+```bash
+# 1. Welche PCI-IDs hat die eGPU (RTX 5060 Ti)?
+lspci | grep -i nvidia
+# Beispielausgabe: 01:00.0 VGA ... RTX 5060
+# → Diese ID merken — NUR diese an VM durchreichen
+
+# 2. Welche PCI-ID hat die iGPU (Radeon 780M)?
+lspci | grep -i "VGA\|Display\|Radeon"
+# → Diese ID NIEMALS an eine VM durchreichen (Proxmox braucht sie für die Console)
+
+# 3. IOMMU-Gruppe der RTX prüfen — ist sie alleine?
+for d in /sys/kernel/iommu_groups/*/devices/*; do
+  n=${d#*/iommu_groups/*}; n=${n%%/*}
+  printf 'Group %s: ' "$n"; lspci -nns "${d##*/}"
+done | grep -i nvidia
+# → RTX soll in einer Gruppe sein die NUR die GPU (und ggf. HDMI-Audio) enthält
+
+# 4. Auf Host ist KEIN nvidia-Treiber geladen?
+lsmod | grep nvidia   # → muss leer sein vor Passthrough
+lspci -k | grep -A2 -i nvidia | grep "Kernel driver"
+# → "vfio-pci" ist korrekt, "nvidia" ist FALSCH
+```
+
+---
+
 ## Sicherheits-Ebenen (von unten nach oben)
 
 ```

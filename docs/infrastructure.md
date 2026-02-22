@@ -141,29 +141,34 @@
 
 **Standort:** Mobil
 **Typ:** Smartphone
-**Zweck:** Fernzugriff, Monitoring, Steuerung
+**Zweck:** Fernzugriff auf isolierten Bereich
 
 | Verwendung | Details |
 |------------|---------|
-| Zugriff auf Homelab | Via WireGuard-App (Tunnel zum VPS) |
-| Monitoring | Proxmox-App oder Webinterface via Tunnel |
-| Steuerung | n8n-Webhooks, Open WebUI (geplant) |
+| Zugriff | **SFTP mit Passkey** — eigener, isolierter Zugriffsbereich |
+| WireGuard | **Kein WireGuard** auf diesem Gerät |
+| Isolation | Eigener abgetrennter Bereich — kein Zugriff auf K1X/Proxmox direkt |
+
+> **Wichtig:** SUPER-NXXX ist bewusst **nicht** über WireGuard ans Homelab angebunden.
+> Der Zugang ist auf den eigenen SFTP-Bereich beschränkt und isoliert von K1X/Proxmox.
 
 ---
 
 ## Abhängigkeiten zwischen Systemen
 
 ```
-SUPER-NXXX ──WireGuard──► VPS ──Tunnel──► K1X-VM
-                           │
-                     Traefik/Authelia
-                     n8n / OCR
-                     WireGuard-Server
+SUPER-NXXX ──SFTP+Passkey──► isolierter Bereich  (kein Proxmox-Zugriff)
+
+XMG ──────────────────────► VPS ──Tunnel──► K1X-VM
+                              │
+                        Traefik/Authelia
+                        n8n / OCR
+                        WireGuard-Server
 ```
 
 | Verbindung | Protokoll | Anmerkung |
 |------------|-----------|-----------|
-| SUPER-NXXX → VPS | WireGuard UDP | Mobiler Zugriff auf alle Dienste |
-| XMG → VPS | HTTPS / WireGuard | Arbeitsplatz-Zugriff |
+| SUPER-NXXX → isolierter Bereich | SFTP + Passkey | Eigener Zugang, getrennt von K1X |
+| XMG → VPS | HTTPS | Arbeitsplatz-Zugriff |
 | VPS ↔ K1X-VM | WireGuard UDP | Verschlüsselter Tunnel (10.8.0.0/24) |
 | K1X-VM intern | Docker `n8n_backend` | Ollama ↔ zukünftige Dienste |
