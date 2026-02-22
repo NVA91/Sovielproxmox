@@ -256,7 +256,8 @@ docker logs -f open-webui
 
 | Datei | Inhalt |
 |-------|--------|
-| [docs/hardware-security.md](./docs/hardware-security.md) | **Hardware-Sicherheit: BIOS, LUKS, IOMMU, Proxmox-Härtung** |
+| [docs/infrastructure.md](./docs/infrastructure.md) | **Hardware-Grundkarte: K1X, VPS, XMG, Mobile** |
+| [docs/hardware-security.md](./docs/hardware-security.md) | **Hardware-Sicherheit: BIOS, LUKS, AMD-Vi IOMMU, OCuLink** |
 | [CLAUDE.md](./CLAUDE.md) | Vollständige Architektur, Konventionen, Checkliste |
 | [tools/ollama/README.md](./tools/ollama/README.md) | Ollama: GPU, Modelle, Zugriff |
 | [tools/wireguard-client/README.md](./tools/wireguard-client/README.md) | WireGuard: nativ vs. Docker |
