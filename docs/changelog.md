@@ -22,6 +22,20 @@ Offen:    - WireGuard: nativ oder dockerisiert? (noch nicht entschieden)
 
 ---
 
+### 2026-02-22 — Arbeitsweise + Simulator-Workflow verankert
+
+```
+Was:      6-Schritt-Workflow in CLAUDE.md (Planen→Testen→Verifizieren→Deployen→Altlasten→Doku)
+          Proxmox-Test-Controller-Simulator als Pflicht-Teststufe eingetragen (Repo-Link TODO)
+          GEFAHR-Sektion: iGPU/eGPU-Verwechslung, OCuLink, falscher NVMe-Passthrough
+          SUPER-NXXX korrigiert: SFTP+Passkey, kein WireGuard, isolierter Bereich
+          Übergabeprotokoll erstellt: docs/next-session.md
+Getestet: Nur Dokumentation — kein Live-Deployment
+Offen:    Simulator-Repo-URL eintragen, Hardware-Checkliste K1X abarbeiten
+```
+
+---
+
 <!-- Neue Einträge oben einfügen — neueste zuerst -->
 
 <!-- Vorlage:
